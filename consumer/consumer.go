@@ -141,5 +141,6 @@ func (s *AutoReconnectConsumer) connect() error {
 			s.Deliveries <- d
 		}
 	}()
+	log.Infof("Connect to AMQP: %v", s.config.ConnectString)
 	return nil
 }

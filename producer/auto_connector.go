@@ -127,5 +127,6 @@ func (s *AutoReconnectProducer) connect() error {
 			}
 		}
 	}()
+	log.Infof("Connect to AMQP: %v", s.config.ConnectString)
 	return nil
 }
