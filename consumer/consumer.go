@@ -82,6 +82,26 @@ func (s *AutoReconnectConsumer) connect() error {
 		return err
 	}
 
+	// channel.ExchangeBind()
+	if s.config.Exchange != nil {
+		err = channel.ExchangeDeclare(
+			s.config.Exchange.Name,
+			s.config.Exchange.Kind,
+			s.config.Exchange.Durable,
+			s.config.Exchange.DeleteWhenUnused,
+			s.config.Exchange.Internal,
+			s.config.Exchange.NoWait,
+			nil,
+		)
+		if err != nil {
+			log.Errorf("Cannot init to AMQP exchange: %v %v", s.config.Exchange.Name, err)
+			return err
+		}
+
+		// channel.ExchangeBind()
+	}
+
+	// channel.ExchangeDeclare()
 	s.Channel = channel
 	queue, err := channel.QueueDeclare(
 		s.config.Name,             // name
@@ -94,6 +114,20 @@ func (s *AutoReconnectConsumer) connect() error {
 	if err != nil {
 		log.Errorf("Cannot init to AMQP queue: %v %v", s.config.ConnectString, err)
 		return err
+	}
+
+	if s.config.Bind != nil {
+		err = channel.ExchangeBind(
+			s.config.Bind.Destination,
+			s.config.Bind.Key,
+			s.config.Bind.Source,
+			s.config.Bind.NoWait,
+			nil,
+		)
+		if err != nil {
+			log.Errorf("Cannot init to AMQP Bind : %v %v", s.config.Bind.Destination, err)
+			return err
+		}
 	}
 
 	// this is queue..
