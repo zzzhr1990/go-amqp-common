@@ -12,7 +12,7 @@ import (
 
 func main() {
 	config := &config.AmqpConfig{
-		ConnectString:    "amqp://java:dpngMibiZtRWzi7ImCsTzXxCHLyt@119.90.54.147:5672/",
+		ConnectString:    "",
 		Name:             "file-queue",
 		Durable:          false,
 		DeleteWhenUnused: false,
