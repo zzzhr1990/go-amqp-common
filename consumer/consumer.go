@@ -157,14 +157,18 @@ func (s *AutoReconnectConsumer) connect() error {
 
 	// queue...
 	msgs, err := channel.Consume(
-		queue.Name,         // queue
-		"",                 // consumer
-		true,               // auto-ack
-		s.config.Exclusive, // exclusive
-		false,              // no-local
-		s.config.NoWait,    // no-wait
-		nil,                // args
+		queue.Name,           // queue
+		s.config.Consumer,    // consumer
+		!s.config.NotAutoAck, // auto-ack
+		s.config.Exclusive,   // exclusive
+		false,                // no-local
+		s.config.NoWait,      // no-wait
+		nil,                  // args
 	)
+
+	if s.config.NotAutoAck {
+		log.Infoln("Setup Amqp not ack, must ack messages when process")
+	}
 
 	if err != nil {
 		log.Fatalf("Setup Amqp Consume error: %v", err)

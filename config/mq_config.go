@@ -11,6 +11,8 @@ type AmqpConfig struct {
 	Exclusive        bool
 	NoWait           bool   `yaml:"no-wait"`
 	RoutingKey       string `yaml:"routing-key"`
+	NotAutoAck       bool   `yaml:"not-auto-ack"`
+	Consumer         string `yaml:"consumer"`
 }
 
 // ExchangeConfig exchange
