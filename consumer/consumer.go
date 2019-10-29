@@ -14,19 +14,20 @@ import (
 type AutoReconnectConsumer struct {
 	// OPT
 	//
-	shutdown   int32
-	Connected  bool
-	config     *config.AmqpConfig
-	Queue      *amqp.Queue   // amqp queue
-	Channel    *amqp.Channel //amqp channel
-	connection *amqp.Connection
-	Deliveries chan amqp.Delivery // Deliveries
+	shutdown        int32
+	prepareShutdown int32
+	Connected       bool
+	config          *config.AmqpConfig
+	Queue           *amqp.Queue   // amqp queue
+	Channel         *amqp.Channel //amqp channel
+	connection      *amqp.Connection
+	Deliveries      chan amqp.Delivery // Deliveries
 }
 
 //CreateNew new instance for AutoReconnectProducer.
 func CreateNew(config *config.AmqpConfig) (*AutoReconnectConsumer, error) {
 	serv := &AutoReconnectConsumer{config: config}
-	serv.Deliveries = make(chan amqp.Delivery)
+	serv.Deliveries = make(chan amqp.Delivery, 1)
 	return serv, serv.connect()
 }
 
@@ -176,9 +177,17 @@ func (s *AutoReconnectConsumer) connect() error {
 	}
 	go func() {
 		for d := range msgs {
+			if atomic.LoadInt32(&s.prepareShutdown) > 0 {
+				break
+			}
 			s.Deliveries <- d
 		}
 	}()
 	log.Infof("Connect to AMQP: %v", s.config.ConnectString)
 	return nil
+}
+
+// PrepareClose Prepare close connection
+func (s *AutoReconnectConsumer) PrepareClose() {
+	atomic.StoreInt32(&s.prepareShutdown, 1)
 }
