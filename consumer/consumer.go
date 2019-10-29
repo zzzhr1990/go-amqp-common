@@ -27,7 +27,7 @@ type AutoReconnectConsumer struct {
 //CreateNew new instance for AutoReconnectProducer.
 func CreateNew(config *config.AmqpConfig) (*AutoReconnectConsumer, error) {
 	serv := &AutoReconnectConsumer{config: config}
-	serv.Deliveries = make(chan amqp.Delivery, 1)
+	serv.Deliveries = make(chan amqp.Delivery)
 	return serv, serv.connect()
 }
 
